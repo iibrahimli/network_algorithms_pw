@@ -90,11 +90,99 @@ def betweenness_centrality(G, v, attr=None):
     Compute the betweenness centrality of a vertex v
     """
     if isinstance(G, nx.Graph):
-        for 
-        sp = shortest_paths(G, v, attr=attr)
-        return len(G.edges(v))
+        vertices = list(G.nodes)
+        n_appearances = 0
+        for i1 in range(len(vertices)):
+            for i2 in range(i1+1, len(vertices)):
+                sp = nx.shortest_path(G, source=vertices[i1], target=vertices[i2], weight=attr)
+                if v in sp:
+                    n_appearances += 1
+        return n_appearances
     elif isinstance(G, nx.DiGraph):
-        sp = shortest_paths(G, v, attr=attr)
-        return len(G.in_edges(v)) + len(G.out_edges(v))
+        vertices = list(G.nodes)
+        n_appearances = 0
+        for i1 in range(len(vertices)):
+            for i2 in range(len(vertices)):
+                if i1 == i2: continue
+                sp = nx.shortest_path(G, source=vertices[i1], target=vertices[i2], weight=attr)
+                if v in sp:
+                    n_appearances += 1
+        return n_appearances
+    else:
+        raise TypeError("check type of G")
+
+
+def network_density(G):
+    """
+    Compute the network density
+    """
+    if isinstance(G, nx.Graph):
+        n_vert = len(G.nodes)
+        n_edges = len(G.edges)
+        return (n_edges) / (n_vert * (n_vert - 1))
+    elif isinstance(G, nx.DiGraph):
+        n_vert = len(G.nodes)
+        n_edges = len(G.edges)
+        return (2 * n_edges) / (n_vert * (n_vert - 1))
+    else:
+        raise TypeError("check type of G")
+
+
+def network_diameter(G, attr=None):
+    """
+    Compute the network diameter
+    """
+    if isinstance(G, nx.Graph):
+        max_path_len = float('-inf')
+        vertices = list(G.nodes)
+        for i1 in range(len(vertices)):
+            for i2 in range(i1+1, len(vertices)):
+                sp = nx.shortest_path(G, source=vertices[i1], target=vertices[i2], weight=attr)
+                sp_len = path_cost(G, sp, attr=attr)
+                if sp_len > max_path_len:
+                    max_path_len = sp_len
+        return max_path_len
+    elif isinstance(G, nx.DiGraph):
+        max_path_len = float('-inf')
+        vertices = list(G.nodes)
+        for i1 in range(len(vertices)):
+            for i2 in range(len(vertices)):
+                if i1 == i2: continue
+                sp = nx.shortest_path(G, source=vertices[i1], target=vertices[i2], weight=attr)
+                sp_len = path_cost(G, sp, attr=attr)
+                if sp_len > max_path_len:
+                    max_path_len = sp_len
+        return max_path_len
+    else:
+        raise TypeError("check type of G")
+
+
+def network_avg_path_len(G, attr=None):
+    """
+    Compute the network average path length
+    """
+    if isinstance(G, nx.Graph):
+        avg_path_len = 0.0
+        count = 0
+        vertices = list(G.nodes)
+        for i1 in range(len(vertices)):
+            for i2 in range(i1+1, len(vertices)):
+                sp = nx.shortest_path(G, source=vertices[i1], target=vertices[i2], weight=attr)
+                sp_len = path_cost(G, sp, attr=attr)
+                avg_path_len += sp_len
+                count += 1
+        return avg_path_len / count
+    elif isinstance(G, nx.DiGraph):
+        avg_path_len = 0.0
+        vertices = list(G.nodes)
+        count = 0
+        for i1 in range(len(vertices)):
+            for i2 in range(len(vertices)):
+                if i1 == i2: continue
+                sp = nx.shortest_path(G, source=vertices[i1], target=vertices[i2], weight=attr)
+                sp_len = path_cost(G, sp, attr=attr)
+                avg_path_len += sp_len
+                count += 1
+        return avg_path_len / count
     else:
         raise TypeError("check type of G")
