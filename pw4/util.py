@@ -28,7 +28,7 @@ def any_path(G, origin, destination):
 
         for neighbor in G.neighbors(orig):
 
-            if G.nodes[neighbor]['visited']:
+            if G.nodes[neighbor]['visited'] or G.nodes[neighbor]['val'] <= 0:
                 continue
 
             if neighbor == dest:
@@ -267,4 +267,13 @@ def get_shortest_path_from_pred(pred, source, dest):
     return list(reversed(sp))
 
 
-def 
+def edmonds_karp(G, source, sink, attr):
+    """
+    Ford-Fulkerson algorithm, attr: capacity
+    """
+
+    R = nx.algorithms.flow.edmonds_karp(G, source, sink, capacity=attr)
+
+    mf = R.graph['flow_value']
+
+    return mf
