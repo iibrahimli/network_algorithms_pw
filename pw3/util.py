@@ -188,7 +188,7 @@ def network_avg_path_len(G, attr=None):
         raise TypeError("check type of G")
 
 
-def bellman_ford(G, source):
+def bellman_ford(G, source, attr):
     """
     Bellman-Ford algorithm. Returns 2 dicts: distances and predecessors
     """
@@ -199,11 +199,69 @@ def bellman_ford(G, source):
     for n in G.nodes:
         dist[n] = float('inf')
         pred[n] = None
-    
-    dist[source] = 0.0
+
+    dist[source] = 0
 
     # relax edges
-    for _ in range(len(G.nodes)):
-        print("Node")
+    for _ in range(len(G.nodes) - 1):
+        for u, v, data in G.edges(data=True):
+            w = data[attr]
+            if dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+                pred[v] = u
+
+    # check for negative weight cycles
+    for u, v, data in G.edges(data=True):
+        w = data[attr]
+        if dist[u] + w < dist[v]:
+            raise AssertionError("Graph contains a negative weight cycle")
 
     return dist, pred
+
+
+def dijkstra(G, source, attr):
+    """
+    Dijkstra's algorithm
+    """
+
+    dist = {}
+    pred = {}
+
+    for n in G.nodes:
+        dist[n] = float('inf')
+        pred[n] = None
+
+    dist[source] = 0
+
+    # relax edges
+    for _ in range(len(G.nodes) - 1):
+        for u, v, data in G.edges(data=True):
+            w = data[attr]
+            if dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+                pred[v] = u
+
+    # check for negative weight cycles
+    for u, v, data in G.edges(data=True):
+        w = data[attr]
+        if dist[u] + w < dist[v]:
+            raise AssertionError("Graph contains a negative weight cycle")
+
+    return dist, pred
+
+
+def get_shortest_path_from_pred(pred, source, dest):
+    """
+    Get shortest path from predecessor list
+    """
+
+    sp = []
+    cur_node = dest
+
+    while cur_node != source:
+        sp.append(cur_node)
+        cur_node = pred[cur_node]
+
+    sp.append(source)
+
+    return list(reversed(sp))
