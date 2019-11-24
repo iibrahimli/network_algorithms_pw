@@ -186,3 +186,24 @@ def network_avg_path_len(G, attr=None):
         return avg_path_len / count
     else:
         raise TypeError("check type of G")
+
+
+def bellman_ford(G, source):
+    """
+    Bellman-Ford algorithm. Returns 2 dicts: distances and predecessors
+    """
+
+    dist = {}
+    pred = {}
+
+    for n in G.nodes:
+        dist[n] = float('inf')
+        pred[n] = None
+    
+    dist[source] = 0.0
+
+    # relax edges
+    for _ in range(len(G.nodes)):
+        print("Node")
+
+    return dist, pred
